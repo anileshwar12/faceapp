@@ -1,16 +1,54 @@
-# faceapp
+# 👁️‍🗨️ Flutter Face Detection App
 
-A new Flutter project.
+A Flutter app for real-time face detection and facial analysis using the device camera. It displays predictions for **emotions**, **age**, and **gender** over the live camera preview, with Lottie animations to enhance the experience.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Features
 
-A few resources to get you started if this is your first Flutter project:
+- 🔍 Real-time face detection using the camera
+- 🎭 Emotion, age, and gender recognition
+- 📁 Analyze images from the gallery
+- ✨ Lottie animations overlay for visual feedback
+- ☁️ Optional cloud API support (Luxand)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 📸 Screenshots
+
+| Preview | Result |
+|--------|--------|
+| ![screenshot1](screenshots/screenshot1.png) | ![screenshot2](screenshots/screenshot2.png) |
+
+> 📝 Replace these with actual screenshots from your app.
+
+---
+
+## 🛠️ Setup Instructions
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/your-repo-name.git
+cd your-repo-name
+```
+
+### 2. Get Luxand API Token
+
+1. Go to [https://www.luxand.cloud/](https://www.luxand.cloud/) and sign up.
+2. Copy your **API Token**.
+3. Replace "API_KEY" in file `lib\utils\api_client.dart` with your api key:
+
+```dart
+class ApiClient {
+  static const String token = "API_KEY";
+```
+
+### 3. Install Dependencies & Run
+
+```bash
+flutter pub get
+flutter run
+```
+
+
