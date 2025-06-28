@@ -20,7 +20,6 @@ A Flutter app for real-time face detection and facial analysis using the device 
 |--------|--------|
 | ![screenshot1](screenshots/screenshot1.jpg) | ![screenshot2](screenshots/screenshot2.jpg) |
 
-> 📝 Replace these with actual screenshots from your app.
 
 ---
 
