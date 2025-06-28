@@ -117,8 +117,16 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
                         SizedBox(
                           width: previewWidth,
                           height: previewHeight,
-                          child: CameraPreview(_controller),
+                          child: FittedBox(
+                            fit: BoxFit.cover,
+                            child: SizedBox(
+                              width: _controller.value.previewSize!.height,
+                              height: _controller.value.previewSize!.width,
+                              child: CameraPreview(_controller),
+                            ),
+                          ),
                         ),
+
                         Positioned(
                           left: (previewWidth / 2) - (250 / 2),
                           top: (previewHeight / 2) - (250 / 2),
