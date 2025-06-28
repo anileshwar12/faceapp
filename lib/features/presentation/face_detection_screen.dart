@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lottie/lottie.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:lottie/lottie.dart';
 
-import 'package:faceapp/features/face_detection.dart';
-import 'package:faceapp/widgets/widgets.dart';
+import '../../../widgets/face_result_card.dart';
+import '../domain/face_detection_service.dart';
+import '../models/detection_result.dart';
 
 class FaceDetectionScreen extends StatefulWidget {
   final CameraDescription camera;
@@ -22,10 +24,10 @@ class FaceDetectionScreen extends StatefulWidget {
 class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
-  DetectionResult? _result;
   bool _isDetecting = false;
   Timer? _timer;
   final picker = ImagePicker();
+  DetectionResult? _result;
   final _service = FaceDetectionService();
 
   @override
@@ -56,23 +58,12 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
       await _initializeControllerFuture;
 
       final XFile image = await _controller.takePicture();
+
       final Directory tempDir = await getTemporaryDirectory();
       final String filePath = path.join(tempDir.path, '${DateTime.now()}.jpg');
       await File(image.path).copy(filePath);
 
-      final result = await _service.detectFaceDetails(File(filePath));
-
-      setState(() {
-        _result = result;
-      });
-    } catch (e) {
-      setState(() {
-        _result = DetectionResult(
-          dominantEmotion: "Error: $e",
-          age: "Unknown",
-          gender: "Unknown",
-        );
-      });
+      await _fetchDetections(File(filePath));
     } finally {
       setState(() {
         _isDetecting = false;
@@ -83,11 +74,15 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
   Future<void> pickFromGallery() async {
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
-      final result = await _service.detectFaceDetails(File(picked.path));
-      setState(() {
-        _result = result;
-      });
+      await _fetchDetections(File(picked.path));
     }
+  }
+
+  Future<void> _fetchDetections(File file) async {
+    final result = await _service.detect(file);
+    setState(() {
+      _result = result;
+    });
   }
 
   @override
@@ -107,38 +102,9 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
           if (snapshot.connectionState == ConnectionState.done) {
             return Stack(
               children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final previewHeight = constraints.maxHeight;
-                    final previewWidth = constraints.maxWidth;
-
-                    return Stack(
-                      children: [
-                        SizedBox(
-                          width: previewWidth,
-                          height: previewHeight,
-                          child: FittedBox(
-                            fit: BoxFit.cover,
-                            child: SizedBox(
-                              width: _controller.value.previewSize!.height,
-                              height: _controller.value.previewSize!.width,
-                              child: CameraPreview(_controller),
-                            ),
-                          ),
-                        ),
-
-                        Positioned(
-                          left: (previewWidth / 2) - (250 / 2),
-                          top: (previewHeight / 2) - (250 / 2),
-                          child: SizedBox(
-                            width: 250,
-                            height: 250,
-                            child: Lottie.asset('assets/face_tracking.json'),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+                CameraPreview(_controller),
+                Center(
+                  child: Lottie.asset('assets/face_tracking.json', height: 250),
                 ),
                 Positioned(
                   top: 60,
@@ -159,9 +125,21 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen> {
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  child: FaceResultCard(
-                    result: _result,
-                    onUploadPressed: _isDetecting ? null : pickFromGallery,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_result != null)
+                        FaceResultCard(result: _result!)
+                      else
+                        const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text(
+                            "Analyzing...",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
                 ),
               ],

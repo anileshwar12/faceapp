@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 class ApiClient {
   static const String token = "API_KEY";
 
-
   Future<List<dynamic>?> sendImageToDetectAPI(File imageFile) async {
     const url = "https://api.luxand.cloud/photo/detect";
 
